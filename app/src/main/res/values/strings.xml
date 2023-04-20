@@ -2,4 +2,5 @@
     <string name="app_name">ContentProviderDemo</string>
     <string name="get_contact_list">Get Contact List</string>
     <string name="get_image_list">Get Image List</string>
+    <string name="get_message_list">Get Sms List</string>
 </resources>

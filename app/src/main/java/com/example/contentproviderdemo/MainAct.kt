@@ -3,6 +3,7 @@ package com.example.contentproviderdemo
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.database.Cursor
+import android.net.Uri
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.provider.MediaStore
@@ -17,6 +18,7 @@ class MainAct : AppCompatActivity() {
     private val myPermissionRequest: Int = 101
     private lateinit var tvGetContactList: TextView
     private lateinit var tvGetImageList: TextView
+    private lateinit var tvGetSmsList: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,7 +38,7 @@ class MainAct : AppCompatActivity() {
             // Permission is not granted
             ActivityCompat.requestPermissions(this,
                 arrayOf(android.Manifest.permission.READ_CONTACTS, android.Manifest.permission.WRITE_CONTACTS, android.Manifest.permission.READ_EXTERNAL_STORAGE,
-                android.Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.READ_SMS),
                 myPermissionRequest)
         }
     }
@@ -44,6 +46,7 @@ class MainAct : AppCompatActivity() {
     private fun initViews() {
         tvGetContactList = findViewById(R.id.tvGetContactList)
         tvGetImageList = findViewById(R.id.tvGetImageList)
+        tvGetSmsList = findViewById(R.id.tvGetSmsList)
     }
 
     private fun initEvent() {
@@ -53,6 +56,27 @@ class MainAct : AppCompatActivity() {
 
         tvGetImageList.setOnClickListener {
             getImageList()
+        }
+
+        tvGetSmsList.setOnClickListener {
+            getSmsList()
+        }
+    }
+
+    private fun getSmsList() {
+        val sms = Uri.parse("content://sms/")
+        val cr = contentResolver
+        val cur = cr.query(sms, null, null, null, null)
+        Log.e("Logger", "Query Count Sms = ${cur!!.count}")
+
+        if (cur.moveToFirst()) {
+            do {
+                val displayName = cur.getString(cur.getColumnIndexOrThrow("_id"))
+                val address = cur.getString(cur.getColumnIndexOrThrow("address"))
+                val msg = cur.getString(cur.getColumnIndexOrThrow("body"))
+
+                Log.e("Logger", "displayName: $displayName, address: $address, message: $msg ")
+            } while (cur.moveToNext())
         }
     }
 
@@ -73,16 +97,16 @@ class MainAct : AppCompatActivity() {
 
         if (cur.moveToFirst()) {
             var bucket: String
-            var date: String
+            var id: String
             val bucketColumn: Int = cur.getColumnIndex(MediaStore.Images.Media.BUCKET_DISPLAY_NAME)
-            val dateColumn: Int = cur.getColumnIndex(MediaStore.Images.Media.DATE_TAKEN)
+            val idColumn: Int = cur.getColumnIndex(MediaStore.Images.Media._ID)
             do {
                 // Get the field values
                 bucket = cur.getString(bucketColumn)
-//                date = cur.getString(dateColumn)
+                id = cur.getString(idColumn)
 
                 // Do something with the values.
-                Log.i("Logger", " bucket=$bucket  ")
+                Log.i("Logger", " Bucket=$bucket, Uri=$id")
             } while (cur.moveToNext())
         }
     }
