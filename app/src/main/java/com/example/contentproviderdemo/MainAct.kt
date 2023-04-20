@@ -48,6 +48,7 @@ class MainAct : AppCompatActivity() {
         }
     }
 
+    //https://stackoverflow.com/questions/12562151/android-get-all-contacts
     @SuppressLint("Range")
     private fun getContactList() {
         val cr = contentResolver
