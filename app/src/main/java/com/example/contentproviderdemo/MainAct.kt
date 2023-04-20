@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import android.database.Cursor
 import android.os.Bundle
 import android.provider.ContactsContract
+import android.provider.MediaStore
 import android.util.Log
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -15,6 +16,7 @@ import androidx.core.content.ContextCompat
 class MainAct : AppCompatActivity() {
     private val myPermissionRequest: Int = 101
     private lateinit var tvGetContactList: TextView
+    private lateinit var tvGetImageList: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,18 +35,55 @@ class MainAct : AppCompatActivity() {
             != PackageManager.PERMISSION_GRANTED) {
             // Permission is not granted
             ActivityCompat.requestPermissions(this,
-                arrayOf(android.Manifest.permission.READ_CONTACTS, android.Manifest.permission.WRITE_CONTACTS),
+                arrayOf(android.Manifest.permission.READ_CONTACTS, android.Manifest.permission.WRITE_CONTACTS, android.Manifest.permission.READ_EXTERNAL_STORAGE,
+                android.Manifest.permission.WRITE_EXTERNAL_STORAGE),
                 myPermissionRequest)
         }
     }
 
     private fun initViews() {
         tvGetContactList = findViewById(R.id.tvGetContactList)
+        tvGetImageList = findViewById(R.id.tvGetImageList)
     }
 
     private fun initEvent() {
         tvGetContactList.setOnClickListener {
             getContactList()
+        }
+
+        tvGetImageList.setOnClickListener {
+            getImageList()
+        }
+    }
+
+    // https://stackoverflow.com/questions/4195660/get-list-of-photo-galleries-on-android
+    private fun getImageList() {
+        // which image properties are we querying
+        val projection = arrayOf(
+            MediaStore.Images.Media._ID,
+            MediaStore.Images.Media.BUCKET_DISPLAY_NAME,
+            MediaStore.Images.Media.DATE_TAKEN
+        )
+
+        // content:// style URI for the "primary" external storage volume
+        val images = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+
+        val cur = managedQuery(images, projection, null, null, null)
+        Log.i("Logger","Query Count Image = " + cur.count)
+
+        if (cur.moveToFirst()) {
+            var bucket: String
+            var date: String
+            val bucketColumn: Int = cur.getColumnIndex(MediaStore.Images.Media.BUCKET_DISPLAY_NAME)
+            val dateColumn: Int = cur.getColumnIndex(MediaStore.Images.Media.DATE_TAKEN)
+            do {
+                // Get the field values
+                bucket = cur.getString(bucketColumn)
+//                date = cur.getString(dateColumn)
+
+                // Do something with the values.
+                Log.i("Logger", " bucket=$bucket  ")
+            } while (cur.moveToNext())
         }
     }
 
