@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">ContentProviderDemo</string>
+    <string name="get_contact_list">Get Contact List</string>
 </resources>
