@@ -12,6 +12,10 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 
 
 class MainAct : AppCompatActivity() {
@@ -51,7 +55,10 @@ class MainAct : AppCompatActivity() {
 
     private fun initEvent() {
         tvGetContactList.setOnClickListener {
-            getContactList()
+            CoroutineScope(Job() + Dispatchers.IO).launch {
+                Log.e("Logger", Thread.currentThread().name)
+                getContactList()
+            }
         }
 
         tvGetImageList.setOnClickListener {
@@ -113,7 +120,7 @@ class MainAct : AppCompatActivity() {
 
     //https://stackoverflow.com/questions/12562151/android-get-all-contacts
     @SuppressLint("Range")
-    private fun getContactList() {
+     suspend fun getContactList() {
         val cr = contentResolver
         val cur: Cursor? = cr.query(
             ContactsContract.Contacts.CONTENT_URI,
